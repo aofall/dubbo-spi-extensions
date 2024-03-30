@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -130,9 +132,9 @@ public class GenericProtobufJsonObjectOutputTest {
         byte[] bytes = new byte[new Random().nextInt(100)];
         new Random().nextBytes(bytes);
 
-        this.genericProtobufObjectOutput.writeUTF(new String(bytes));
+        this.genericProtobufObjectOutput.writeUTF(new String(bytes, StandardCharsets.UTF_8));
         this.flushToInput();
-        assertThat(genericProtobufObjectInput.readUTF(), is(new String(bytes)));
+        assertEquals(genericProtobufObjectInput.readUTF(), new String(bytes, StandardCharsets.UTF_8));
     }
 
     @Test

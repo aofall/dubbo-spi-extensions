@@ -108,6 +108,7 @@
         <revision>3.2.0</revision>
         <!-- Test libs -->
         <junit_jupiter_version>5.9.3</junit_jupiter_version>
+        <junit_platform_version>1.10.2</junit_platform_version>
         <awaitility_version>4.2.0</awaitility_version>
         <hazelcast_version>3.11.1</hazelcast_version>
         <hamcrest_version>2.2</hamcrest_version>
@@ -132,7 +133,7 @@
         <maven_source_version>3.2.1</maven_source_version>
         <maven_javadoc_version>3.2.0</maven_javadoc_version>
         <maven_checkstyle_version>3.1.2</maven_checkstyle_version>
-        <maven_jacoco_version>0.8.6</maven_jacoco_version>
+        <maven_jacoco_version>0.8.9</maven_jacoco_version>
         <maven_flatten_version>1.2.5</maven_flatten_version>
         <maven_enforce_version>3.0.0-M3</maven_enforce_version>
         <apache-rat-plugin.version>0.13</apache-rat-plugin.version>
@@ -182,6 +183,18 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit_jupiter_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit_jupiter_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-commons</artifactId>
+            <version>${junit_platform_version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -302,6 +315,17 @@
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <forkMode>once</forkMode>
                     <argLine>${argline} ${jacocoArgLine}</argLine>
+                    <argLine>
+                        -Dfile.encoding=UTF-8
+                        -Dconsole.encoding=UTF-8
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                        --add-opens java.base/java.math=ALL-UNNAMED
+                        --add-opens java.base/java.net=ALL-UNNAMED
+                        --add-opens java.base/java.text=ALL-UNNAMED
+                        --add-opens java.base/java.util=ALL-UNNAMED
+                        --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+                        --add-opens java.base/java.nio=ALL-UNNAMED
+                    </argLine>
                     <systemProperties>
                         <!-- common shared -->
                     </systemProperties>
