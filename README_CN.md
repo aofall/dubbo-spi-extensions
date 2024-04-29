@@ -2,8 +2,8 @@
 [![Build and Test For PR](https://github.com/apache/dubbo-spi-extensions/actions/workflows/build-and-test-pr.yml/badge.svg)](https://github.com/apache/dubbo-spi-extensions/actions/workflows/build-and-test-pr.yml)
 [![codecov](https://codecov.io/gh/apache/dubbo-spi-extensions/branch/master/graph/badge.svg)](https://codecov.io/gh/apache/dubbo-spi-extensions)
 [![Maven Central](https://img.shields.io/maven-central/v/org.apache.dubbo.extensions/extensions-parent.svg)](https://search.maven.org/search?q=g:org.apache.dubbo.extensions)
-[[!License](https://img.shields.io/github/license/alibaba/dubbo.svg)]
-[[!GitHub release](https://img.shields.io/github/release/apache/dubbo-spi-extensions.svg)]
+[![License](https://img.shields.io/github/license/apache/dubbo.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![GitHub release](https://img.shields.io/github/release/apache/dubbo-spi-extensions.svg)](https://github.com/apache/dubbo-spi-extensions/releases)
 
 [English](./README.md)
 
