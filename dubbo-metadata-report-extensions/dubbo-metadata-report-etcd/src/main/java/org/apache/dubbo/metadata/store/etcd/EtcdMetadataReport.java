@@ -126,6 +126,11 @@ public class EtcdMetadataReport extends AbstractMetadataReport {
         return etcdClient.getKVValue(getNodeKey(metadataIdentifier));
     }
 
+    @Override
+    public boolean registerServiceAppMapping(String serviceKey, String application, URL url) {
+        return false;
+    }
+
     private void storeMetadata(MetadataIdentifier identifier, String v) {
         String key = getNodeKey(identifier);
         if (!etcdClient.put(key, v)) {
