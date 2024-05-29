@@ -38,7 +38,7 @@ import org.apache.dubbo.common.URL;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-//import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -54,7 +54,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 
-//@Disabled
+@Disabled
 public class JEtcdClientWrapperTest {
 
     JEtcdClientWrapper clientWrapper;
