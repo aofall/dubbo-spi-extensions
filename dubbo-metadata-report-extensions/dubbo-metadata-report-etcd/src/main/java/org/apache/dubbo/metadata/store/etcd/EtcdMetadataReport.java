@@ -34,7 +34,11 @@
 package org.apache.dubbo.metadata.store.etcd;
 
 import org.apache.dubbo.common.URL;
+import org.apache.dubbo.common.config.configcenter.ConfigItem;
+import org.apache.dubbo.common.utils.JsonUtils;
 import org.apache.dubbo.common.utils.StringUtils;
+import org.apache.dubbo.metadata.MappingListener;
+import org.apache.dubbo.metadata.MetadataInfo;
 import org.apache.dubbo.metadata.report.identifier.BaseMetadataIdentifier;
 import org.apache.dubbo.metadata.report.identifier.KeyTypeEnum;
 import org.apache.dubbo.metadata.report.identifier.MetadataIdentifier;
@@ -47,9 +51,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.apache.dubbo.common.constants.CommonConstants.GROUP_KEY;
 import static org.apache.dubbo.common.constants.CommonConstants.PATH_SEPARATOR;
+import static org.apache.dubbo.metadata.ServiceNameMapping.DEFAULT_MAPPING_GROUP;
+import static org.apache.dubbo.metadata.ServiceNameMapping.getAppNames;
 
 /**
  * Report Metadata to Etcd
@@ -127,8 +135,64 @@ public class EtcdMetadataReport extends AbstractMetadataReport {
     }
 
     @Override
-    public boolean registerServiceAppMapping(String serviceKey, String application, URL url) {
+    public void publishAppMetadata(SubscriberMetadataIdentifier identifier, MetadataInfo metadataInfo) {
+        String path = getNodeKey(identifier);
+        if (StringUtils.isNotEmpty(metadataInfo.getContent())) {
+            etcdClient.put(path, metadataInfo.getContent());
+        }
+    }
+
+    @Override
+    public void unPublishAppMetadata(SubscriberMetadataIdentifier identifier, MetadataInfo metadataInfo) {
+        String path = getNodeKey(identifier);
+        if (etcdClient.checkExists(path)) {
+            etcdClient.delete(path);
+        }
+    }
+
+    @Override
+    public ConfigItem getConfigItem(String serviceKey, String group) {
+        String path = buildPathKey(serviceKey, group);
+        // TODO: implements ConfigItem manage
+        return null;
+    }
+
+    @Override
+    public boolean registerServiceAppMapping(String serviceInterface, String defaultMappingGroup, String newConfigContent,
+                                             Object ticket) {
+        String pathKey = defaultMappingGroup + PATH_SEPARATOR + serviceInterface;
+        try {
+            etcdClient.put(pathKey, newConfigContent);
+            return true;
+        } catch (Exception e) {
+            logger.error("Failed to register service app metadata", e);
+        }
         return false;
+    }
+
+    @Override
+    public void removeServiceAppMappingListener(String serviceKey, MappingListener listener) {
+        String path = buildPathKey(DEFAULT_MAPPING_GROUP, serviceKey);
+        // TODO: implement listener
+    }
+
+    @Override
+    public MetadataInfo getAppMetadata(SubscriberMetadataIdentifier identifier, Map<String, String> instanceMetadata) {
+        String content = etcdClient.getKVValue(getNodeKey(identifier));
+        return JsonUtils.toJavaObject(content, MetadataInfo.class);
+    }
+
+    @Override
+    public Set<String> getServiceAppMapping(String serviceKey, URL url) {
+        String path = buildPathKey(DEFAULT_MAPPING_GROUP, serviceKey);
+        return getAppNames(etcdClient.getKVValue(path));
+    }
+
+    @Override
+    public Set<String> getServiceAppMapping(String serviceKey, MappingListener listener, URL url) {
+        String path = buildPathKey(DEFAULT_MAPPING_GROUP, serviceKey);
+        // TODO: implement listener
+        return null;
     }
 
     private void storeMetadata(MetadataIdentifier identifier, String v) {
@@ -136,6 +200,10 @@ public class EtcdMetadataReport extends AbstractMetadataReport {
         if (!etcdClient.put(key, v)) {
             logger.error("Failed to put " + identifier + " to etcd, value: " + v);
         }
+    }
+
+    private String buildPathKey(String group, String serviceKey) {
+        return toRootDir() + group + PATH_SEPARATOR + serviceKey;
     }
 
     String getNodeKey(BaseMetadataIdentifier identifier) {

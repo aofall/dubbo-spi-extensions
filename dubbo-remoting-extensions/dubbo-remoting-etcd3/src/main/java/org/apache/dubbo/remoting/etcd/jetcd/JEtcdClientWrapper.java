@@ -643,7 +643,7 @@ public class JEtcdClientWrapper {
                 return result.get(0).getValue().toString(UTF_8);
             }
         } catch (Exception e) {
-            // ignore
+            logger.error("Get key from etcd error", e);
         }
 
         return null;
@@ -660,7 +660,7 @@ public class JEtcdClientWrapper {
             putFuture.get(DEFAULT_REQUEST_TIMEOUT, TimeUnit.MILLISECONDS);
             return true;
         } catch (Exception e) {
-            // ignore
+            logger.error("Put key to etcd error", e);
         }
         return false;
     }
