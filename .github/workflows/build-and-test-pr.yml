@@ -90,7 +90,7 @@ jobs:
   # Build from source code
   build-source:
     name: "Build Dubbo-SPI-Extensions"
-    needs: [check-license, build-tools]
+    needs: [ check-license, build-tools ]
     runs-on: ubuntu-latest
     # output dubbo-spi-extensions version to others jobs
     outputs:
@@ -146,7 +146,7 @@ jobs:
   # Download dependencies Prepare for unit test
   unit-test-prepare:
     name: "Preparation for Unit Test On ${{ matrix.os }}"
-    needs: [check-license]
+    needs: [ check-license ]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -211,7 +211,7 @@ jobs:
           echo "--- End Print Rsa Public Key"
   # Start unit test
   unit-test:
-    needs: [check-license, build-source, unit-test-prepare]
+    needs: [ check-license, build-source, unit-test-prepare ]
     name: "Unit Test ${{ matrix.os }} with JDK ${{ matrix.jdk }}"
     runs-on: ${{ matrix.os }}
     strategy:
@@ -295,6 +295,68 @@ jobs:
           path: "**/target/site/**/jacoco.xml"
       - name: "Upload coverage to Codecov"
         uses: codecov/codecov-action@v4
+  samples-test:
+    name: "SPI Samples Test (JobId: ${{matrix.job_id}})"
+    needs: [ check-license, build-source ]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      JAVA_VER: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        job_id: [1, 2, 3]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: 'apache/dubbo-spi-samples'
+          fetch-depth: 1
+          ref: main
+      - name: "Cache Maven local repository cache"
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+            ${{ runner.os }}-maven-
+      - name: "Restore Dubbo-SPI-Extensions"
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+            ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          # SPI Samples Test use unsafe API so use JDK 8
+          java-version: 8
+      - name: Download test list
+        uses: actions/download-artifact@v4
+        with:
+          name: test-list
+          path: test/jobs/
+      - name: Build test image
+        run: |
+          cd test && bash ./build-test-image.sh
+      - name: Run tests
+        run: cd test && bash ./run-tests.sh
+      - name: Upload log if test failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log-${{matrix.java}}-${{matrix.job_id}}
+          path: "**/test/scenarios/**/logs/*"
+      - name: Upload test result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-result-${{matrix.job_id}}
+          path: test/jobs/*-result*
+
 
 #  error-code-inspecting:
 #    needs: [check-license, build-tools]
