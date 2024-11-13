@@ -16,10 +16,12 @@
  */
 package org.apache.remoting.transport.mina;
 
+import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.utils.NetUtils;
 import org.apache.dubbo.remoting.RemotingException;
 import org.apache.dubbo.remoting.exchange.ExchangeChannel;
 import org.apache.dubbo.remoting.exchange.ExchangeServer;
+import org.apache.dubbo.remoting.exchange.Exchangers;
 import org.apache.dubbo.remoting.exchange.support.Replier;
 
 import org.junit.jupiter.api.AfterEach;
@@ -42,9 +44,13 @@ public abstract class ClientToServerTest {
 
     protected WorldHandler handler = new WorldHandler();
 
-    protected abstract ExchangeServer newServer(int port, Replier<?> receiver) throws RemotingException;
+    private ExchangeServer newServer(int port, Replier<?> receiver) throws RemotingException {
+        return Exchangers.bind(URL.valueOf("exchange://localhost:" + port + "?server=mina"), receiver);
+    }
 
-    protected abstract ExchangeChannel newClient(int port) throws RemotingException;
+    private ExchangeChannel newClient(int port) throws RemotingException {
+        return Exchangers.connect(URL.valueOf("exchange://localhost:" + port + "?client=mina&timeout=3000"));
+    }
 
     @BeforeEach
     protected void setUp() throws Exception {
